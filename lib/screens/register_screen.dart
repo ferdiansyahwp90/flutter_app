@@ -4,35 +4,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/screens/colours.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_app/screens/register_screen.dart';
+import 'package:flutter_app/screens/login_screen.dart';
 import 'package:flutter_app/urls/uri_network.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
 
+  TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController passwordConfirmationController =
+      TextEditingController();
 
-  void httpLogin() async {
+  void httpRegister() async {
     final headers = {'Content-Type': 'application/json'};
 
-    final Map body = {
+    Map body = {
+      'name': nameController.text,
       'email': emailController.text.trim(),
-      'password': passwordController.text,
-      'device_name': 'mobile'
+      'password': passwordController.text
     };
 
-    final url = Uri.parse(UriNetwork().baseUrl + UriNetwork().uriLogin);
+    final url = Uri.parse(UriNetwork().baseUrl + UriNetwork().uriRegister);
 
     try {
-      final response = await http.post(url, body: body, headers: headers);
+      final response =
+          await http.post(url, body: jsonEncode(body), headers: headers);
       print(response.statusCode);
       print(response.body);
 
@@ -41,8 +45,16 @@ class _LoginScreenState extends State<LoginScreen> {
         final preferences = await prefs;
         preferences.setString('token', json['token']);
 
+        nameController.clear();
         emailController.clear();
         passwordController.clear();
+        passwordConfirmationController.clear();
+        dialogMessage('Sukses', 'Sukses mendaftar, silahkan login!');
+        // ignore: use_build_context_synchronously
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => const LoginScreen()));
       } else if (response.statusCode == 422) {
         throw jsonDecode(response.body)['data'] ?? 'Unknown Error Occured';
       } else if (response.statusCode == 400) {
@@ -83,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const Center(
                 child: Text(
-                  'Login Screen',
+                  'Register Screen',
                   style: TextStyle(
                       fontSize: 30,
                       fontFamily: 'San Serif',
@@ -92,6 +104,29 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(
                 height: 25,
+              ),
+              const Align(
+                  alignment: Alignment.centerLeft, child: Text('Name : ')),
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                height: 50,
+                width: double.infinity,
+                padding: const EdgeInsets.only(left: 30, right: 30),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: const Color(0xffeeeeee)),
+                child: TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                      hintText: 'Name',
+                      border: InputBorder.none,
+                      hintStyle: TextStyle(fontSize: 14)),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
               ),
               const Align(
                   alignment: Alignment.centerLeft, child: Text('Email : ')),
@@ -140,6 +175,31 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(
                 height: 20,
               ),
+              const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('Konfirmasi Password : ')),
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                height: 50,
+                width: double.infinity,
+                padding: const EdgeInsets.only(left: 30, right: 30),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: const Color(0xffeeeeee)),
+                child: TextFormField(
+                  controller: passwordConfirmationController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                      hintText: 'Konfirmasi Password',
+                      border: InputBorder.none,
+                      hintStyle: TextStyle(fontSize: 14)),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
               Container(
                 height: 50,
                 width: double.infinity,
@@ -148,10 +208,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderRadius: BorderRadius.circular(10), color: primary),
                 child: TextButton(
                   onPressed: () {
-                    httpLogin();
+                    httpRegister();
                   },
                   child: const Text(
-                    'Login Now',
+                    'Register Now',
                     style: TextStyle(
                       color: Color(0xffffffff),
                     ),
@@ -164,17 +224,17 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('Belum punya akun? '),
+                  const Text('Sudah punya akun? '),
                   InkWell(
                       onTap: () {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (BuildContext context) =>
-                                    const RegisterScreen()));
+                                    const LoginScreen()));
                       },
                       child: const Text(
-                        'Daftar',
+                        'Masuk',
                         style: TextStyle(color: warning),
                       )),
                 ],
