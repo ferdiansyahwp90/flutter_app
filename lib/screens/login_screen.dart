@@ -32,7 +32,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final url = Uri.parse(UriNetwork().baseUrl + UriNetwork().uriLogin);
 
     try {
-      final response = await http.post(url, body: body, headers: headers);
+      final response =
+          await http.post(url, body: jsonEncode(body), headers: headers);
       print(response.statusCode);
       print(response.body);
 
@@ -43,6 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
         emailController.clear();
         passwordController.clear();
+        print(response.body);
+        print('Berhasil Login');
       } else if (response.statusCode == 422) {
         throw jsonDecode(response.body)['data'] ?? 'Unknown Error Occured';
       } else if (response.statusCode == 400) {
