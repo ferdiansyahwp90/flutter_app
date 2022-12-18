@@ -76,6 +76,8 @@ class _EditScreenState extends State<EditScreen> {
 
     try {
       final response = await http.delete(url, headers: headers);
+      print(response.statusCode);
+      print(response.body);
 
       if (response.statusCode == 204) {
         categoryController.clear();
