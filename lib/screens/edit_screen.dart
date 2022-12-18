@@ -62,6 +62,40 @@ class _EditScreenState extends State<EditScreen> {
     }
   }
 
+  void httpDeleteCategory(int id) async {
+    final _prefs = await prefs;
+    var token = _prefs.getString('token');
+    var headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    };
+
+    final url =
+        Uri.parse('${UriNetwork().baseUrl}${UriNetwork().uriCategory}/$id');
+
+    try {
+      final response = await http.delete(url, headers: headers);
+
+      if (response.statusCode == 204) {
+        categoryController.clear();
+        print(response.body);
+        // ignore: use_build_context_synchronously
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => const HomeScreen()));
+        dialogMessage('Success', 'Hapus data berhasil!');
+      } else if (response.statusCode == 422) {
+        throw jsonDecode(response.body)['message'] ?? 'Unknown Error Occured';
+      } else if (response.statusCode == 400) {
+        throw jsonDecode(response.body)['errors'] ?? 'Unknown Error Occured';
+      }
+    } catch (error) {
+      dialogMessage('Errors', error.toString());
+    }
+  }
+
   void dialogMessage(title, error) {
     showDialog(
         context: context,
@@ -150,6 +184,24 @@ class _EditScreenState extends State<EditScreen> {
               const SizedBox(
                 height: 10,
               ),
+              Container(
+                padding: const EdgeInsets.only(left: 20, right: 20),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    color: greyLight, borderRadius: BorderRadius.circular(10)),
+                child: TextButton(
+                  onPressed: () {
+                    httpDeleteCategory(widget.categoryId);
+                  },
+                  child: const Text(
+                    'Delete',
+                    style: TextStyle(
+                        color: danger,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16),
+                  ),
+                ),
+              )
             ],
           ),
         ),
