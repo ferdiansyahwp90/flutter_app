@@ -1,5 +1,5 @@
 class UriNetwork {
-  final String baseUrl = 'http://192.168.100.8/api';
+  final String baseUrl = 'http://192.168.100.8:8000/api';
 
   //before login
   final String uriLogin = '/auth/login';

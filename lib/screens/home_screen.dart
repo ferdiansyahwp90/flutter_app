@@ -6,6 +6,7 @@ import 'package:flutter_app/models/category_model.dart';
 import 'package:flutter_app/screens/add_screen.dart';
 import 'package:flutter_app/screens/colours.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_app/screens/edit_screen.dart';
 import 'package:flutter_app/screens/login_screen.dart';
 import 'package:flutter_app/urls/uri_network.dart';
 

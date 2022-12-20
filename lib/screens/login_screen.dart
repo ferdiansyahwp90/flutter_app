@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/screens/colours.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_app/screens/home_screen.dart';
 import 'package:flutter_app/screens/register_screen.dart';
 import 'package:flutter_app/urls/uri_network.dart';
 
@@ -17,16 +18,18 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
 
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  TextEditingController emailController =
+      TextEditingController(text: 'superadmin@gmail.com');
+  TextEditingController passwordController =
+      TextEditingController(text: 'password');
 
   void httpLogin() async {
     final headers = {'Content-Type': 'application/json'};
 
-    final Map body = {
+    Map body = {
       'email': emailController.text.trim(),
       'password': passwordController.text,
-      'device_name': 'mobile'
+      //'device_name': 'mobile'
     };
 
     final url = Uri.parse(UriNetwork().baseUrl + UriNetwork().uriLogin);
@@ -46,6 +49,10 @@ class _LoginScreenState extends State<LoginScreen> {
         passwordController.clear();
         print(response.body);
         print('Berhasil Login');
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => const HomeScreen()));
       } else if (response.statusCode == 422) {
         throw jsonDecode(response.body)['data'] ?? 'Unknown Error Occured';
       } else if (response.statusCode == 400) {
